@@ -52,21 +52,53 @@ async function login(page) {
     page.waitForNavigation(), // wait for login.
   ]);
 
-  const wrongLogin = await page.waitForSelector('.login__form');
-
-  if (wrongLogin) {
-    console.log('Email or password is wrong. Please try again.')
+  try {
+    await page.waitForSelector('.login__form', { timeout: 2000 });
+    console.log('Email or password is wrong. Please try again.');
     await page.goto('https://www.linkedin.com'); // go to linkedin.
     await login(page);
+  } catch (error) {
+    return true;
+  }
+}
+
+async function finishHim(page) {
+  const deleteButton =
+    '[data-control-name="A_jobshome_job_delete_application_click"]';
+  await page.waitFor(1000);
+  await page.waitForSelector(deleteButton);
+  await page.click(deleteButton);
+  await page.waitFor(1000);
+  const isExist = await page.waitForSelector('.artdeco-button--primary');
+  if (isExist) {
+    await page.click('.artdeco-button--primary');
+  } else {
+    finishHim(page);
   }
 }
 
 async function deleteJob() {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: false,
+    slowMo: 10,
+    defaultViewport: null,
+  });
   const page = await browser.newPage();
 
   await page.goto('https://www.linkedin.com'); // go to linkedin.
-  await login(page);
+  const loginSuccess = await login(page);
+
+  if (loginSuccess) {
+    await page.goto('https://www.linkedin.com/jobs/applied/'); // go to linkedin applied page and wait for load.
+    await page.waitForSelector('.jobs-activity__list-item');
+    const buttons = await page.$$('.jobs-activity__list-item');
+    for (let button of buttons) {
+      await finishHim(page);
+    }
+  } else {
+    console.log('Something wrong with login. Closing.');
+    await browser.close;
+  }
 
   await browser.close;
 }
