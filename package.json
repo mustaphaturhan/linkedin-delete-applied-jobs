@@ -1,0 +1,22 @@
+{
+  "name": "remove-applied-jobs",
+  "version": "1.0.0",
+  "description": "do you want remove every job that you applied on linkedin? me too. there is more than 400 jobs i applied, i can't do it manually.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "linkedin",
+    "job",
+    "application",
+    "web",
+    "automation"
+  ],
+  "author": "Mustapha Turhan",
+  "license": "MIT",
+  "dependencies": {
+    "inquirer": "^6.2.2",
+    "puppeteer": "^1.14.0"
+  }
+}
