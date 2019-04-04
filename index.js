@@ -53,7 +53,7 @@ async function login(page) {
   ]);
 
   try {
-    await page.waitForSelector('.login__form', { timeout: 2000 });
+    await page.waitForSelector('.login__form', { timeout: 1000 });
     console.log('Email or password is wrong. Please try again.');
     await page.goto('https://www.linkedin.com'); // go to linkedin.
     await login(page);
@@ -66,20 +66,39 @@ async function finishHim(page) {
   const deleteButton =
     '[data-control-name="A_jobshome_job_delete_application_click"]';
   await page.waitFor(1000);
-  await page.waitForSelector(deleteButton);
-  await page.click(deleteButton);
-  await page.waitFor(1000);
-  const isExist = await page.waitForSelector('.artdeco-button--primary');
-  if (isExist) {
-    await page.click('.artdeco-button--primary');
+  const isDeleteExist = await page.waitForSelector(deleteButton);
+  if (isDeleteExist) {
+    await page.click(deleteButton);
   } else {
-    finishHim(page);
+    console.log('I think its done.');
   }
+  await page.waitFor(1000);
+  const isFinishExist = await page.waitForSelector('.artdeco-button--primary');
+  if (isFinishExist) {
+    await page.click('.artdeco-button--primary');
+    const time = new Date().toLocaleString();
+    await console.log(time + ': 1 deleted.');
+  } else {
+    console.log('Something wrong.')
+    deleteList(page);
+  }
+}
+
+async function deleteList(page) {
+  await page.waitForSelector('.jobs-activity__list-item');
+  const buttons = await page.$$('.jobs-activity__list-item');
+  await console.log('I found something, starting!');
+  for (let button of buttons) {
+    await finishHim(page);
+  }
+  await page.reload();
+  await console.log('Page reloaded, just a moment.');
+  await deleteList(page);
 }
 
 async function deleteJob() {
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     slowMo: 10,
     defaultViewport: null,
   });
@@ -89,14 +108,11 @@ async function deleteJob() {
   const loginSuccess = await login(page);
 
   if (loginSuccess) {
+    await console.log('Redirecting to applied page.')
     await page.goto('https://www.linkedin.com/jobs/applied/'); // go to linkedin applied page and wait for load.
-    await page.waitForSelector('.jobs-activity__list-item');
-    const buttons = await page.$$('.jobs-activity__list-item');
-    for (let button of buttons) {
-      await finishHim(page);
-    }
+    await deleteList(page);
   } else {
-    console.log('Something wrong with login. Closing.');
+    await console.log('Something wrong with login. Closing.');
     await browser.close;
   }
 
