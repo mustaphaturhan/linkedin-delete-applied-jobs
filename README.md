@@ -1,4 +1,4 @@
-# Delete LinkedIn Applied Jobs
+# Delete LinkedIn Applied Jobs - This isn't working anymore.
 ### How to install?
 Go to [NodeJS](https://nodejs.org/en/) website and download LTS one. After install, go to terminal and clone this repository by writing:
 `git clone https://github.com/mustaphaturhan/linkedin-delete-applied-jobs.git`
